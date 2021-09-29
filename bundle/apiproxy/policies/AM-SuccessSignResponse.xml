@@ -1,0 +1,12 @@
+<AssignMessage name='AM-SuccessSignResponse'>
+  <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
+  <Set>
+    <Payload contentType='application/json'>{
+  "signature": "{escapeJSON(ecdsa_output)}",
+  "output_encoding": "{ecdsa_output_encoding}"
+}
+</Payload>
+    <StatusCode>200</StatusCode>
+    <ReasonPhrase>OK</ReasonPhrase>
+  </Set>
+</AssignMessage>

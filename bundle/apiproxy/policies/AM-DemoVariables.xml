@@ -1,0 +1,23 @@
+<AssignMessage name='AM-DemoVariables'>
+  <AssignVariable>
+    <Name>my_public_key</Name>
+    <Value>
+      -----BEGIN PUBLIC KEY-----
+      MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEasd7vKQkLZjgBiVIihsK22lPrwH5
+      506KfGTdyrdKRv9Kjh59Ftr/zFJm9Kx/l84yYVjicZFewMiHXWKTYnl8bw==
+      -----END PUBLIC KEY-----
+    </Value>
+  </AssignVariable>
+
+  <AssignVariable>
+    <Name>private.my_private_key</Name>
+    <Value>
+      -----BEGIN PRIVATE KEY-----
+      MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgLsZ/mjo3Skwk6C8N
+      hv6E0oJt1QpuT6yuUpEi27YqKcihRANCAARqx3u8pCQtmOAGJUiKGwrbaU+vAfnn
+      Top8ZN3Kt0pG/0qOHn0W2v/MUmb0rH+XzjJhWOJxkV7AyIddYpNieXxv
+      -----END PRIVATE KEY-----
+    </Value>
+  </AssignVariable>
+
+</AssignMessage>

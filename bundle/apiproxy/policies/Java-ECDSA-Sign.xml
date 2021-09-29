@@ -1,0 +1,10 @@
+<JavaCallout name="Java-ECDSA-Sign">
+  <Properties>
+    <Property name='action'>sign</Property>
+    <Property name='generate-keypair'>false</Property>
+    <Property name='private-key'>{private.my_private_key}</Property>
+    <Property name='encode-result'>base64url</Property>
+  </Properties>
+  <ClassName>com.google.apigee.callouts.EcdsaSigCallout</ClassName>
+  <ResourceURL>java://apigee-callout-ecdsa-sig-20210929.jar</ResourceURL>
+</JavaCallout>

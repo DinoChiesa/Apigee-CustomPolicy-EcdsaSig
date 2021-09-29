@@ -1,0 +1,12 @@
+<AssignMessage name='AM-SignatureError'>
+  <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
+  <Set>
+    <Payload contentType='application/json'>{
+  "error" : true,
+  "message" : "{ecdsa_error}"
+}
+    </Payload>
+    <StatusCode>500</StatusCode>
+    <ReasonPhrase>Server Error</ReasonPhrase>
+  </Set>
+</AssignMessage>

@@ -1,0 +1,13 @@
+<RaiseFault name="RF-Invalid-Request">
+  <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
+  <FaultResponse>
+   <Set>
+     <Payload contentType="application/json">{
+ "error" : "invalid request. Did you specify the required headers."
+}
+</Payload>
+     <StatusCode>400</StatusCode>
+     <ReasonPhrase>Bad Request</ReasonPhrase>
+   </Set>
+ </FaultResponse>
+</RaiseFault>

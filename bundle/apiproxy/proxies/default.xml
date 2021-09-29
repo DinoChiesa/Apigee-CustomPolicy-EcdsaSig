@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ProxyEndpoint name="default">
+  <Description>Default Proxy</Description>
+
+  <HTTPProxyConnection>
+    <BasePath>/ecdsa-sig</BasePath>
+    <Properties/>
+    <VirtualHost>secure</VirtualHost>
+  </HTTPProxyConnection>
+
+  <FaultRules>
+    <FaultRule name='rule1'>
+      <Step>
+        <Name>AM-SignatureError</Name>
+      </Step>
+      <Condition>ecdsa_error != null</Condition>
+    </FaultRule>
+  </FaultRules>
+
+  <DefaultFaultRule name="default-fault-rule">
+    <Step>
+      <Name>AM-Inject-Proxy-Revision-Header</Name>
+    </Step>
+    <AlwaysEnforce>true</AlwaysEnforce>
+  </DefaultFaultRule>
+
+  <PreFlow>
+    <Request>
+      <Step>
+        <Name>AM-DemoVariables</Name>
+      </Step>
+    </Request>
+    <Response>
+      <Step>
+        <Name>AM-Clean-Request-Headers-From-Response</Name>
+      </Step>
+    </Response>
+  </PreFlow>
+
+  <PostFlow name='PostFlow'>
+    <Request>
+    </Request>
+    <Response>
+      <Step>
+        <Name>AM-Inject-Proxy-Revision-Header</Name>
+      </Step>
+    </Response>
+  </PostFlow>
+
+  <Flows>
+
+    <Flow name="sign-1">
+      <!--
+          curl -i https://gaccelerate3-test.apigee.net/ecdsa-sig/sign1 \
+             -H content-type:text/plain \
+             -d 'The quick brown fox jumped over the lazy dog.'
+      -->
+      <Description>sign the plaintext payload</Description>
+      <Request>
+        <Step>
+          <Name>Java-ECDSA-Sign</Name>
+        </Step>
+      </Request>
+      <Response>
+        <Step>
+          <Name>AM-SuccessSignResponse</Name>
+        </Step>
+      </Response>
+      <Condition>(proxy.pathsuffix MatchesPath "/sign1") and (request.verb = "POST")</Condition>
+    </Flow>
+
+    <Flow name="verify-1">
+      <!--
+          curl -i https://gaccelerate3-test.apigee.net/ecdsa-sig/verify1 \
+             -H "ecdsa-signature: SIGNATURE_GOES_HERE" \
+             -H content-type:text/plain \
+             -d 'The quick brown fox jumped over the lazy dog.'
+      -->
+      <Description>verify the payload with the given signature</Description>
+      <Request>
+        <Step>
+          <Name>RF-Invalid-Request</Name>
+          <Condition>request.header.ecdsa-signature = null</Condition>
+        </Step>
+        <Step>
+          <Name>Java-ECDSA-Verify</Name>
+        </Step>
+      </Request>
+      <Response>
+        <Step>
+          <Name>AM-SuccessVerifyResponse</Name>
+        </Step>
+      </Response>
+      <Condition>(proxy.pathsuffix MatchesPath "/verify1") and (request.verb = "POST")</Condition>
+    </Flow>
+
+    <Flow name='unknown'>
+      <Description>unknown request</Description>
+      <Request>
+        <Step>
+          <Name>RF-Unknown-Request</Name>
+        </Step>
+      </Request>
+    </Flow>
+  </Flows>
+
+  <RouteRule name="Loopback"/>
+
+</ProxyEndpoint>

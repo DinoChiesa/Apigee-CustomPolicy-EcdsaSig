@@ -1,0 +1,10 @@
+<JavaCallout name="Java-ECDSA-Verify">
+  <Properties>
+    <Property name='action'>verify</Property>
+    <Property name='public-key'>{my_public_key}</Property>
+    <Property name='signature'>{request.header.ecdsa-signature}</Property>
+    <Property name='decode-signature'>base64url</Property>
+  </Properties>
+  <ClassName>com.google.apigee.callouts.EcdsaSigCallout</ClassName>
+  <ResourceURL>java://apigee-callout-ecdsa-sig-20210929.jar</ResourceURL>
+</JavaCallout>
