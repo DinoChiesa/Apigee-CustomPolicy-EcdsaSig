@@ -30,6 +30,7 @@ import com.apigee.flow.message.MessageContext;
 import com.google.apigee.encoding.Base16;
 import com.google.apigee.util.CalloutUtil;
 import com.google.apigee.util.KeyUtil;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
@@ -45,6 +46,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.bouncycastle.openssl.PEMWriter;
 
 @IOIntensive
 public class EcdsaSigCallout implements Execution {
@@ -183,8 +185,18 @@ public class EcdsaSigCallout implements Execution {
       keyGen.initialize(new ECGenParameterSpec(curve), new SecureRandom());
       KeyPair pair = keyGen.generateKeyPair();
       PrivateKey privateKey = pair.getPrivate();
-      msgCtxt.setVariable(
-          varName("output_key"), getEncoder(msgCtxt).apply(privateKey.getEncoded()));
+
+      StringWriter sw = new StringWriter();
+      try (PEMWriter pw = new PEMWriter(sw))
+      {
+        pw.writeObject(privateKey);
+      }
+      catch (IOException e)
+      {
+      }
+      // msgCtxt.setVariable(
+      //     varName("output_key"), getEncoder(msgCtxt).apply(privateKey.getEncoded()));
+      msgCtxt.setVariable(varName("output_key"), sw.toString());
       return privateKey;
     }
 
