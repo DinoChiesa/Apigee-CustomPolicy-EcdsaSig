@@ -4,7 +4,7 @@
 
   <groupId>com.google.apigee</groupId>
   <artifactId>apigee-callout-ecdsa-sig</artifactId>
-  <version>20210930</version>
+  <version>20210930a</version>
   <name>ApigeeCustomEcdsaSig</name>
   <url>http://maven.apache.org</url>
   <packaging>jar</packaging>

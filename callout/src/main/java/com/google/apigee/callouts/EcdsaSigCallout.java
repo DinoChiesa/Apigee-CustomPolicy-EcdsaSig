@@ -33,6 +33,7 @@ import com.google.apigee.util.KeyUtil;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -40,12 +41,19 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Signature;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECGenParameterSpec;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.bouncycastle.asn1.ASN1EncodableVector;
+import org.bouncycastle.asn1.ASN1Integer;
+import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.openssl.PEMWriter;
 
 @IOIntensive
@@ -63,6 +71,11 @@ public class EcdsaSigCallout implements Execution {
   public EcdsaSigCallout(Map properties) {
     this.properties = CalloutUtil.genericizeMap(properties);
   }
+
+  enum SignatureFormat {
+    P1363,
+    ASN1
+  };
 
   enum CryptoAction {
     SIGN,
@@ -168,8 +181,54 @@ public class EcdsaSigCallout implements Execution {
     return cryptoAction;
   }
 
-  private PublicKey getPublicKey(MessageContext msgCtxt) throws Exception {
-    return KeyUtil.decodePublicKey(_getRequiredString(msgCtxt, "public-key"));
+  private static void toFixed(BigInteger x, byte[] a, int off, int len) throws Exception {
+    byte[] t = x.toByteArray();
+    if (t.length == len + 1 && t[0] == 0) System.arraycopy(t, 1, a, off, len);
+    else if (t.length <= len) System.arraycopy(t, 0, a, off + len - t.length, t.length);
+    else throw new Exception();
+  }
+
+  private static byte[] toP1363(byte[] asn1EncodedSignature) throws Exception {
+    ASN1Sequence seq = ASN1Sequence.getInstance(asn1EncodedSignature);
+    BigInteger r = ((ASN1Integer) seq.getObjectAt(0)).getValue();
+    BigInteger s = ((ASN1Integer) seq.getObjectAt(1)).getValue();
+    int n = (r.bitLength() + 7) / 8;
+    // round up to nearest even integer
+    n = (int) Math.round((n+1)/2) * 2;
+    byte[] out = new byte[2 * n];
+    toFixed(r, out, 0, n);
+    toFixed(s, out, n, n);
+    return out;
+  }
+
+  private static byte[] toASN1(byte[] p1363EncodedSignature) throws IOException {
+    int n = p1363EncodedSignature.length / 2;
+    BigInteger r = new BigInteger(+1, Arrays.copyOfRange(p1363EncodedSignature, 0, n));
+    BigInteger s = new BigInteger(+1, Arrays.copyOfRange(p1363EncodedSignature, n, n * 2));
+    ASN1EncodableVector v = new ASN1EncodableVector();
+    v.add(new ASN1Integer(r));
+    v.add(new ASN1Integer(s));
+    return new DERSequence(v).getEncoded();
+  }
+
+  private SignatureFormat getFormat(MessageContext msgCtxt) throws Exception {
+    String action = this.properties.get("format");
+    if (action != null) action = action.trim();
+    if (action == null || action.equals("")) {
+      return SignatureFormat.ASN1;
+    }
+    action = resolveVariableReferences(action, msgCtxt);
+    if (action.toUpperCase().equals("P1363")) {
+      return SignatureFormat.P1363;
+    }
+    if (action.toUpperCase().equals("ASN1")) {
+      return SignatureFormat.ASN1;
+    }
+    throw new IllegalStateException("specify a valid action.");
+  }
+
+  private ECPublicKey getPublicKey(MessageContext msgCtxt) throws Exception {
+    return (ECPublicKey) KeyUtil.decodePublicKey(_getRequiredString(msgCtxt, "public-key"));
   }
 
   private void emitKeyVariable(MessageContext msgCtxt, java.security.Key key, String label) {
@@ -181,20 +240,20 @@ public class EcdsaSigCallout implements Execution {
     msgCtxt.setVariable(varName("output_" + label), sw.toString());
   }
 
-  private PrivateKey getPrivateKey(MessageContext msgCtxt) throws Exception {
+  private ECPrivateKey getPrivateKey(MessageContext msgCtxt) throws Exception {
     boolean wantGenerateKey = _getBooleanProperty(msgCtxt, "generate-keypair", false);
     if (wantGenerateKey) {
       KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
       String curve = _getStringProp(msgCtxt, "curve", "secp256r1");
       keyGen.initialize(new ECGenParameterSpec(curve), new SecureRandom());
       KeyPair pair = keyGen.generateKeyPair();
-      PrivateKey privateKey = pair.getPrivate();
+      ECPrivateKey privateKey = (ECPrivateKey) pair.getPrivate();
       emitKeyVariable(msgCtxt, privateKey, "privatekey");
       emitKeyVariable(msgCtxt, pair.getPublic(), "publickey");
       return privateKey;
     }
 
-    return KeyUtil.decodePrivateKey(
+    return (ECPrivateKey) KeyUtil.decodePrivateKey(
         _getRequiredString(msgCtxt, "private-key"),
         _getOptionalString(msgCtxt, "private-key-password"));
   }
@@ -262,7 +321,6 @@ public class EcdsaSigCallout implements Execution {
     throw new IllegalStateException("unhandled encoding");
   }
 
-
   private static String getStackTraceAsString(Throwable t) {
     StringWriter sw = new StringWriter();
     PrintWriter pw = new PrintWriter(sw);
@@ -311,23 +369,33 @@ public class EcdsaSigCallout implements Execution {
     try {
       clearVariables(msgCtxt);
       debug = getDebug(msgCtxt);
+
       Signature sig = Signature.getInstance("SHA256withECDSA");
       CryptoAction action = getAction(msgCtxt); // sign or verify
       msgCtxt.setVariable(varName("action"), action.name().toLowerCase());
       byte[] source = getSourceBytes(action, msgCtxt);
+      SignatureFormat format = getFormat(msgCtxt); // P1363 or ASN.1
 
       if (action == CryptoAction.SIGN) {
-        PrivateKey privateKey = getPrivateKey(msgCtxt);
+        ECPrivateKey privateKey = getPrivateKey(msgCtxt);
         sig.initSign(privateKey);
         sig.update(source);
         byte[] result = sig.sign();
+        if (format == SignatureFormat.P1363) {
+          result = toP1363(result);
+        }
+        msgCtxt.setVariable(varName("output_format"), format.toString());
         msgCtxt.setVariable(varName("signature"), getEncoder(msgCtxt).apply(result));
       } else if (action == CryptoAction.VERIFY) {
         msgCtxt.setVariable(varName("verified"), "false");
-        PublicKey publicKey = getPublicKey(msgCtxt);
+        ECPublicKey publicKey = getPublicKey(msgCtxt);
         sig.initVerify(publicKey);
         sig.update(source);
         byte[] signatureBytes = getSignatureToVerify(msgCtxt);
+        if (format == SignatureFormat.P1363) {
+          signatureBytes = toASN1(signatureBytes);
+        }
+        msgCtxt.setVariable(varName("input_format"), format.toString());
         boolean verified = sig.verify(signatureBytes);
         if (!verified) {
           msgCtxt.setVariable(varName("error"), "verification of the signature failed.");

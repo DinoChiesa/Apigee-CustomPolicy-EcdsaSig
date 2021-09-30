@@ -124,6 +124,13 @@ public class TestEcdsaSig {
                 + "33qW+yBbv4DhEkKAU6GLW3FUApHsP3phTr9hSCAxuexNkND9ZSZOTRY6NMAAqwEC\n"
                 + "20L+uRYyEXoIy56vz7uLL9QabAL9wShNiL3MuTkBnLoaORH/uYTRxefTJ6crhNGL\n"
                 + "i7GcHte7p3L/h+lJGzA=\n"
+                + "-----END PUBLIC KEY-----\n"),
+        new PairedKeys(
+            "",
+            "-----BEGIN PUBLIC KEY-----\n"
+                + "MIGbMBAGByqGSM49AgEGBSuBBAAjA4GGAAQBHPYWDznBjvs9Wl7Nw51DI90D7G+7JQCIssdj5nkt\n"
+                + "Q+KgBZsQ28eWkJyEBz0oSquTa876XXA9C8N3F0CQs6UgrrQAMfuuFS6b/XJH3RolJVZNdN7xmZxG\n"
+                + "hbP+sz75nIB1NVym5y7nRgzyUxX2FPo7PoRAlWZQM2V6CDt6NdUFLHHM19U=\n"
                 + "-----END PUBLIC KEY-----\n")
       };
 
@@ -361,4 +368,65 @@ public class TestEcdsaSig {
     Assert.assertEquals(verified.toUpperCase(), "FALSE");
   }
 
+  @Test()
+  public void verify_secp521r1_P1363_Base64() {
+    Map<String, String> properties = new HashMap<String, String>();
+    properties.put("testname", "verify_secp521r1_P1363_Base64");
+    properties.put("action", "verify");
+    properties.put("format", "P1363");
+    properties.put("debug", "true");
+    properties.put("signature", "{signature_value}");
+    properties.put("decode-signature", "base64");
+    properties.put("curve", "secp521r1");
+    properties.put("public-key", testkeys[2].publicKey);
+
+    msgCtxt.setVariable("message.content", "Live long and prosper");
+    msgCtxt.setVariable(
+        "signature_value",
+        "AEYo2JeQXtEG3sMf5uISVd+Iri2Sq6h9lmibWAtpGkNwI6gtqnASMaGPnE6fdvPM9tqzWzPeMCONASz+Zr1pUATiAGKLUPBb25XLVBXDBeCbRk94gvkZ2pZWbtvCWNuaWl3MfBglySTj0bTy43IqB0Q5J2dS+RuVFmGEZOq84o5uy5py");
+
+    EcdsaSigCallout callout = new EcdsaSigCallout(properties);
+    ExecutionResult result = callout.execute(msgCtxt, exeCtxt);
+
+    // check result and output
+    reportThings(properties);
+    Assert.assertEquals(result, ExecutionResult.SUCCESS);
+    // retrieve output
+    String error = msgCtxt.getVariable("ecdsa_error");
+    Assert.assertNull(error);
+
+    String verified = msgCtxt.getVariable("ecdsa_verified");
+    Assert.assertNotNull(verified);
+    Assert.assertEquals(verified.toUpperCase(), "TRUE");
+  }
+
+  public void verify_secp521r1_ASN1_Base64() {
+    Map<String, String> properties = new HashMap<String, String>();
+    properties.put("testname", "verify_secp521r1_ASN1_Base64");
+    properties.put("action", "verify");
+    properties.put("debug", "true");
+    properties.put("signature", "{signature_value}");
+    properties.put("decode-signature", "base64");
+    properties.put("curve", "secp521r1");
+    properties.put("public-key", testkeys[2].publicKey);
+
+    msgCtxt.setVariable("message.content", "Live long and prosper");
+    msgCtxt.setVariable(
+        "signature_value",
+        "MIGGAkFGKNiXkF7RBt7DH+biElXfiK4tkquofZZom1gLaRpDcCOoLapwEjGhj5xOn3bzzPbas1sz3jAjjQEs/ma9aVAE4gJBYotQ8FvblctUFcMF4JtGT3iC+RnallZu28JY25paXcx8GCXJJOPRtPLjcioHRDknZ1L5G5UWYYRk6rzijm7LmnI=");
+
+    EcdsaSigCallout callout = new EcdsaSigCallout(properties);
+    ExecutionResult result = callout.execute(msgCtxt, exeCtxt);
+
+    // check result and output
+    reportThings(properties);
+    Assert.assertEquals(result, ExecutionResult.SUCCESS);
+    // retrieve output
+    String error = msgCtxt.getVariable("ecdsa_error");
+    Assert.assertNull(error);
+
+    String verified = msgCtxt.getVariable("ecdsa_verified");
+    Assert.assertNotNull(verified);
+    Assert.assertEquals(verified.toUpperCase(), "TRUE");
+  }
 }
