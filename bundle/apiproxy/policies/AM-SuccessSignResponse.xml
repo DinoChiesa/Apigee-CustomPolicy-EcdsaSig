@@ -2,7 +2,7 @@
   <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
   <Set>
     <Payload contentType='application/json'>{
-  "signature": "{escapeJSON(ecdsa_output)}",
+  "signature": "{escapeJSON(ecdsa_signature)}",
   "output_encoding": "{ecdsa_output_encoding}"
 }
 </Payload>
