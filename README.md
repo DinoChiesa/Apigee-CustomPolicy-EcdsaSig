@@ -191,7 +191,7 @@ These are the properties available on the policy:
 | source            | optional. name of the context variable containing the data to sign or verify. Do not surround in curly braces. Defaults to `message.content`.     |
 | decode-source     | optional. if present, one of "base16", "base64", or "base64url", to decode from a string to an octet stream. Otherwise, decoded as UTF-8.         |
 | generate-keypair  | optional. a boolean. Meaningful only when action = "sign". If true, the policy generates a random ECDSA key pair for you, and emits the encoded private and public key into context variables. |
-| curve             | optional. name of the EC curve used when generating a keypair.  Such as: `prime256v1`, `secp521r1`, and so on. Defaults to `prime256v1`.          |
+| curve             | optional. When `generate-keypair` is true, this specifies the name of the EC curve to use.  Such as: `prime256v1`, `secp521r1`, and so on. Defaults to `prime256v1`.  Ignored when `generate-keypair` is false or not present.      |
 | format            | optional. One of {P1363, ASN1}. The format for the signature, either for reading or writing.  ASN1 DER is the default.                            |
 | encode-result     | optional. One of {base16, base64, base64url}. The default is to not encode the result.                                                            |
 | debug             | optional. true or false. If true, the policy emits extra context variables.                                                                       |

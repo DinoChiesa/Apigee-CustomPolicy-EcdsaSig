@@ -127,11 +127,11 @@ public class TestEcdsaSig {
                 + "-----END PUBLIC KEY-----\n"),
         new PairedKeys(
             "",
-            "-----BEGIN PUBLIC KEY-----\n"
-                + "MIGbMBAGByqGSM49AgEGBSuBBAAjA4GGAAQBHPYWDznBjvs9Wl7Nw51DI90D7G+7JQCIssdj5nkt\n"
-                + "Q+KgBZsQ28eWkJyEBz0oSquTa876XXA9C8N3F0CQs6UgrrQAMfuuFS6b/XJH3RolJVZNdN7xmZxG\n"
-                + "hbP+sz75nIB1NVym5y7nRgzyUxX2FPo7PoRAlWZQM2V6CDt6NdUFLHHM19U=\n"
-                + "-----END PUBLIC KEY-----\n")
+            "      -----BEGIN PUBLIC KEY-----\n"
+                + "      MIGbMBAGByqGSM49AgEGBSuBBAAjA4GGAAQBHPYWDznBjvs9Wl7Nw51DI90D7G+7JQCIssdj5nkt\n"
+                + "      Q+KgBZsQ28eWkJyEBz0oSquTa876XXA9C8N3F0CQs6UgrrQAMfuuFS6b/XJH3RolJVZNdN7xmZxG\n"
+                + "      hbP+sz75nIB1NVym5y7nRgzyUxX2FPo7PoRAlWZQM2V6CDt6NdUFLHHM19U=\n"
+                + "      -----END PUBLIC KEY-----\n")
       };
 
   private void reportThings(Map<String, String> props) {
@@ -313,7 +313,6 @@ public class TestEcdsaSig {
     properties.put("debug", "true");
     properties.put("signature", "{signature_value}");
     properties.put("decode-signature", "base16");
-    properties.put("curve", "secp521r1");
     properties.put("public-key", testkeys[1].publicKey);
 
     msgCtxt.setVariable("message.content", "The quick brown fox jumped over the lazy dog.");
@@ -344,7 +343,6 @@ public class TestEcdsaSig {
     properties.put("debug", "true");
     properties.put("signature", "{signature_value}");
     properties.put("decode-signature", "base16");
-    properties.put("curve", "secp521r1");
     properties.put("public-key", testkeys[1].publicKey);
 
     msgCtxt.setVariable("message.content", "The quick brown fox jumped over the lazy dog...");
@@ -377,7 +375,6 @@ public class TestEcdsaSig {
     properties.put("debug", "true");
     properties.put("signature", "{signature_value}");
     properties.put("decode-signature", "base64");
-    properties.put("curve", "secp521r1");
     properties.put("public-key", testkeys[2].publicKey);
 
     msgCtxt.setVariable("message.content", "Live long and prosper");
@@ -407,7 +404,6 @@ public class TestEcdsaSig {
     properties.put("debug", "true");
     properties.put("signature", "{signature_value}");
     properties.put("decode-signature", "base64");
-    properties.put("curve", "secp521r1");
     properties.put("public-key", testkeys[2].publicKey);
 
     msgCtxt.setVariable("message.content", "Live long and prosper");
