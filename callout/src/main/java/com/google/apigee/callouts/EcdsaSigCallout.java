@@ -147,7 +147,7 @@ public class EcdsaSigCallout implements Execution {
 
   private byte[] decodeString(String s, EncodingType decodingKind) throws Exception {
     if (decodingKind == EncodingType.BASE16) {
-      return Base16.decode(s);
+      return Base16.decode(s.replaceAll("-",""));
     }
     if (decodingKind == EncodingType.BASE64) {
       return Base64.getDecoder().decode(s);

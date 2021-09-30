@@ -279,6 +279,36 @@ public class TestEcdsaSig {
   }
 
   @Test()
+  public void verify_Base16_dashes() {
+    Map<String, String> properties = new HashMap<String, String>();
+    properties.put("testname", "verify_Base16_dashes");
+    properties.put("action", "verify");
+    properties.put("debug", "true");
+    properties.put("source", "message.content");
+    properties.put("signature", "{signature_value}");
+    properties.put("decode-signature", "base16");
+    properties.put("public-key", testkeys[0].publicKey);
+
+    msgCtxt.setVariable(
+        "signature_value",
+        "30-45-02-21-00-82-b5-f9-a5-1c-0f-84-94-f2-3f-ae-a1-b7-ef-ed-20-e1-82-92-d2-d2-b7-9e-68-0c-76-4b-68-ba-b4-37-d0-02-20-50-30-65-9e-ff-9c-c0-a6-40-4a-64-80-9b-02-18-27-c3-d3-e8-b9-22-20-a6-b5-e3-d9-8b-4c-d7-d8-e9-7b");
+    msgCtxt.setVariable("message.content", "The quick brown fox jumped over the lazy dog.");
+
+    EcdsaSigCallout callout = new EcdsaSigCallout(properties);
+    ExecutionResult result = callout.execute(msgCtxt, exeCtxt);
+
+    // check result and output
+    reportThings(properties);
+    Assert.assertEquals(result, ExecutionResult.SUCCESS);
+    // retrieve output
+    String error = msgCtxt.getVariable("ecdsa_error");
+    Assert.assertNull(error);
+    String verified = msgCtxt.getVariable("ecdsa_verified");
+    Assert.assertNotNull(verified);
+    Assert.assertEquals(verified.toUpperCase(), "TRUE");
+  }
+
+  @Test()
   public void sign_secp521r1_Base16() {
     Map<String, String> properties = new HashMap<String, String>();
     properties.put("testname", "sign_secp521r1_Base16");
