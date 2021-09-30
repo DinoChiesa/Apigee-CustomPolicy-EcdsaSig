@@ -1,9 +1,10 @@
 # ECDSA Signature callout
 
-This directory contains the Java source code for a custom policy for Apigee
-that performs ECDSA signature creation and verification of data or message payloads.
-It can sign or verify with any EC curve supported by the JDK.
-This callout does not perform RSA signing, or ECDSA encryption.
+This directory contains the Java source code for a custom policy for Apigee that
+performs ECDSA signature creation and verification of data or message payloads,
+using `SHA256withECDSA`.  It can sign or verify with any EC curve supported by
+the JDK.  This callout does not perform RSA signing, or ECDSA encryption.  It does not
+sign with `SHA1withECDSA`.
 
 ## License
 
@@ -220,4 +221,3 @@ godino@google.com
 
 * The tests are incomplete. They don't test a wide variety of curves. They don't test
   a wide variety of failure scenarios.
-
