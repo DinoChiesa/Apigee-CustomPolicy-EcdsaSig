@@ -177,8 +177,10 @@ public class TestEcdsaSig {
     String error = msgCtxt.getVariable("ecdsa_error");
     Assert.assertNull(error);
 
-    String encodedKey = msgCtxt.getVariable("ecdsa_output_key");
-    Assert.assertNotNull(encodedKey);
+    String encodedPublicKey = msgCtxt.getVariable("ecdsa_output_publickey");
+    Assert.assertNotNull(encodedPublicKey);
+    String encodedPrivateKey = msgCtxt.getVariable("ecdsa_output_privatekey");
+    Assert.assertNotNull(encodedPrivateKey);
   }
 
   @Test()
@@ -202,9 +204,13 @@ public class TestEcdsaSig {
     // retrieve output
     String error = msgCtxt.getVariable("ecdsa_error");
     Assert.assertNull(error);
+    String computedSig = msgCtxt.getVariable("ecdsa_signature");
+    Assert.assertNotNull(computedSig);
 
-    String encodedKey = msgCtxt.getVariable("ecdsa_output_key");
-    Assert.assertNotNull(encodedKey);
+    String encodedPublicKey = msgCtxt.getVariable("ecdsa_output_publickey");
+    Assert.assertNotNull(encodedPublicKey);
+    String encodedPrivateKey = msgCtxt.getVariable("ecdsa_output_privatekey");
+    Assert.assertNotNull(encodedPrivateKey);
   }
 
   @Test()
@@ -228,8 +234,10 @@ public class TestEcdsaSig {
     // retrieve output
     String error = msgCtxt.getVariable("ecdsa_error");
     Assert.assertNull(error);
+    String computedSig = msgCtxt.getVariable("ecdsa_signature");
+    Assert.assertNotNull(computedSig);
 
-    String encodedKey = msgCtxt.getVariable("ecdsa_output_key");
+    String encodedKey = msgCtxt.getVariable("ecdsa_output_privatekey");
     Assert.assertNull(encodedKey);
   }
 
@@ -286,7 +294,7 @@ public class TestEcdsaSig {
     String error = msgCtxt.getVariable("ecdsa_error");
     Assert.assertNull(error);
 
-    String encodedKey = msgCtxt.getVariable("ecdsa_output_key");
+    String encodedKey = msgCtxt.getVariable("ecdsa_output_privatekey");
     Assert.assertNull(encodedKey);
   }
 

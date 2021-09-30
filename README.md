@@ -63,7 +63,6 @@ configuration. Examples follow, but here's a quick summary:
   the policy for verification, you can specify the way to decode the signature.
 
 
-
 ## Example: Basic Verification of a Signature
 
 ```xml
@@ -122,7 +121,8 @@ Here's what will happen with this policy configuration:
 
 * the `generate-keypair` property is true, so the policy will generate an ECDSA
   keypair, and use the generated private key to sign. It also emits this private
-  key into a context variable, `ecdsa_output_key`.
+  key into a context variable, `ecdsa_output_privatekey`, and emits the public
+  key into a context variable, `ecdsa_output_publickey`.
 
 * the `encode-result` property is base64, so the key and signature will both be emitted as
   base64-encoded strings, `ecdsa_output_key` and `ecdsa_signature`.
@@ -157,14 +157,22 @@ These are the properties available on the policy:
 | private-key       | required when action = "sign". a PEM string representing the ECDSA private key.                                                                   |
 | private-key-password | optional. a password to use with an encrypted private key.                                                                                     |
 | source            | optional. name of the context variable containing the data to sign or verify. Do not surround in curly braces. Defaults to `message.content`.     |
-| curve             | optional. name of the EC curve.  Example: prime256v1, secp521r1, and so on.     |
+| curve             | optional. name of the EC curve.  Such as: `prime256v1`, `secp521r1`, and so on. Defaults to `prime256v1`.     |
 | decode-source     | optional. if present, one of "base16", "base64", or "base64url", to decode from a string to an octet stream. Otherwise, decoded as UTF-8.         |
-| generate-keypair  | optional. a boolean. Meaningful only when action = "sign". If true, the policy generates a random ECDSA key pair, and emits the encoded private key. |
+| generate-keypair  | optional. a boolean. Meaningful only when action = "sign". If true, the policy generates a random ECDSA key pair for you, and emits the encoded private and public key into context variables. |
 | encode-result     | optional. One of {base16, base64, base64url}. The default is to not encode the result.                                                            |
 | debug             | optional. true or false. If true, the policy emits extra context variables. Not for use in production.                                            |
 
 
 ## Detecting Success and Errors
+
+When action = `sign`, if the policy succeeds, it sets a variable `ecdsa_signature`
+with the computed signature, encoded according to your `encode-result` setting
+(base16, base64, base64url). In this case, if you also have `generate-keypair`
+as true, then the policy will also set `ecdsa_output_privatekey` and
+`ecdsa_output_publickey` to contain the PEM-encoded keys.  If you don't set
+`generate-keypair` or set it to false, then the policy does not set these output
+variables.
 
 The policy will return ABORT and set the context variable `ecdsa_error` if there has been any error at runtime. Your proxy bundles can check this variable in `FaultRules`.
 
@@ -206,9 +214,7 @@ upload that jar file into the API Proxy via the Apigee API Proxy Editor .
 
 These jars are specified in the pom.xml file.
 
-The first two JARs are builtin to Apigee. You will need to upload the
-BouncyCastle jar as a resource to your Apigee instance, either
-with the apiproxy or with the organization or environment.
+The first two JARs are builtin to Apigee. The BC jar is also available to Java callouts in your Apigee instance. 
 
 
 ## Author

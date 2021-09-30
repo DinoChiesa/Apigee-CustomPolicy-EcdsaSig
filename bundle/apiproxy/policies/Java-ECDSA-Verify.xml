@@ -6,5 +6,5 @@
     <Property name='decode-signature'>base64url</Property>
   </Properties>
   <ClassName>com.google.apigee.callouts.EcdsaSigCallout</ClassName>
-  <ResourceURL>java://apigee-callout-ecdsa-sig-20210929.jar</ResourceURL>
+  <ResourceURL>java://apigee-callout-ecdsa-sig-20210930.jar</ResourceURL>
 </JavaCallout>

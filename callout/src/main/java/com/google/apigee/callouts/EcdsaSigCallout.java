@@ -51,7 +51,6 @@ import org.bouncycastle.openssl.PEMWriter;
 @IOIntensive
 public class EcdsaSigCallout implements Execution {
   private static final String varprefix = "ecdsa_";
-  private static final String defaultOutputVarSuffix = "output";
 
   private static final Pattern variableReferencePattern =
       Pattern.compile("(.*?)\\{([^\\{\\} :][^\\{\\} ]*?)\\}(.*?)");
@@ -124,10 +123,6 @@ public class EcdsaSigCallout implements Execution {
     return value;
   }
 
-  private String getOutputVar(MessageContext msgCtxt) throws Exception {
-    return _getStringProp(msgCtxt, "output", varName(defaultOutputVarSuffix));
-  }
-
   private EncodingType _getEncodingTypeProperty(MessageContext msgCtxt, String propName)
       throws Exception {
     return EncodingType.valueOf(_getStringProp(msgCtxt, propName, "NONE").toUpperCase());
@@ -177,6 +172,15 @@ public class EcdsaSigCallout implements Execution {
     return KeyUtil.decodePublicKey(_getRequiredString(msgCtxt, "public-key"));
   }
 
+  private void emitKeyVariable(MessageContext msgCtxt, java.security.Key key, String label) {
+    StringWriter sw = new StringWriter();
+    try (PEMWriter pw = new PEMWriter(sw)) {
+      pw.writeObject(key);
+    } catch (IOException e) {
+    }
+    msgCtxt.setVariable(varName("output_" + label), sw.toString());
+  }
+
   private PrivateKey getPrivateKey(MessageContext msgCtxt) throws Exception {
     boolean wantGenerateKey = _getBooleanProperty(msgCtxt, "generate-keypair", false);
     if (wantGenerateKey) {
@@ -185,18 +189,8 @@ public class EcdsaSigCallout implements Execution {
       keyGen.initialize(new ECGenParameterSpec(curve), new SecureRandom());
       KeyPair pair = keyGen.generateKeyPair();
       PrivateKey privateKey = pair.getPrivate();
-
-      StringWriter sw = new StringWriter();
-      try (PEMWriter pw = new PEMWriter(sw))
-      {
-        pw.writeObject(privateKey);
-      }
-      catch (IOException e)
-      {
-      }
-      // msgCtxt.setVariable(
-      //     varName("output_key"), getEncoder(msgCtxt).apply(privateKey.getEncoded()));
-      msgCtxt.setVariable(varName("output_key"), sw.toString());
+      emitKeyVariable(msgCtxt, privateKey, "privatekey");
+      emitKeyVariable(msgCtxt, pair.getPublic(), "publickey");
       return privateKey;
     }
 
@@ -268,11 +262,6 @@ public class EcdsaSigCallout implements Execution {
     throw new IllegalStateException("unhandled encoding");
   }
 
-  private void setOutput(MessageContext msgCtxt, CryptoAction action, byte[] source, byte[] result)
-      throws Exception {
-    String outputVar = getOutputVar(msgCtxt);
-    msgCtxt.setVariable(outputVar, getEncoder(msgCtxt).apply(result));
-  }
 
   private static String getStackTraceAsString(Throwable t) {
     StringWriter sw = new StringWriter();
@@ -332,7 +321,7 @@ public class EcdsaSigCallout implements Execution {
         sig.initSign(privateKey);
         sig.update(source);
         byte[] result = sig.sign();
-        setOutput(msgCtxt, action, source, result);
+        msgCtxt.setVariable(varName("signature"), getEncoder(msgCtxt).apply(result));
       } else if (action == CryptoAction.VERIFY) {
         msgCtxt.setVariable(varName("verified"), "false");
         PublicKey publicKey = getPublicKey(msgCtxt);
