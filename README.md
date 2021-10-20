@@ -90,7 +90,7 @@ configuration. Examples follow, but here's a quick summary:
     <Property name='decode-signature'>base16</Property>
   </Properties>
   <ClassName>com.google.apigee.callouts.EcdsaSigCallout</ClassName>
-  <ResourceURL>java://apigee-callout-ecdsa-sig-20210930a.jar</ResourceURL>
+  <ResourceURL>java://apigee-callout-ecdsa-sig-20211020.jar</ResourceURL>
 </JavaCallout>
 ```
 
@@ -146,7 +146,7 @@ IEEE P1363-formatted signature (simply concatenating the (r,s) pair), you need t
     <Property name='decode-signature'>base16</Property>
   </Properties>
   <ClassName>com.google.apigee.callouts.EcdsaSigCallout</ClassName>
-  <ResourceURL>java://apigee-callout-ecdsa-sig-20210930a.jar</ResourceURL>
+  <ResourceURL>java://apigee-callout-ecdsa-sig-20211020.jar</ResourceURL>
 </JavaCallout>
 ```
 
@@ -160,7 +160,7 @@ IEEE P1363-formatted signature (simply concatenating the (r,s) pair), you need t
     <Property name='encode-result'>base64</Property>
   </Properties>
   <ClassName>com.google.apigee.callouts.EcdsaSigCallout</ClassName>
-  <ResourceURL>java://apigee-callout-ecdsa-sig-20210930a.jar</ResourceURL>
+  <ResourceURL>java://apigee-callout-ecdsa-sig-20211020.jar</ResourceURL>
 </JavaCallout>
 ```
 
@@ -191,7 +191,7 @@ Here's what will happen with this policy configuration:
     <Property name='encode-result'>base64</Property>
   </Properties>
   <ClassName>com.google.apigee.callouts.EcdsaSigCallout</ClassName>
-  <ResourceURL>java://apigee-callout-ecdsa-sig-20210930a.jar</ResourceURL>
+  <ResourceURL>java://apigee-callout-ecdsa-sig-20211020.jar</ResourceURL>
 </JavaCallout>
 ```
 
@@ -259,7 +259,7 @@ To build: `mvn clean package`
 The Jar source code includes tests.
 
 If you edit policies offline, copy the jar file for the custom
-policy (found in callout/target/apigee-callout-ecdsa-sig-20210929.jar) to your
+policy (found in callout/target/apigee-callout-ecdsa-sig-20211020.jar) to your
 apiproxy/resources/java directory.  If you don't edit proxy bundles offline,
 upload that jar file into the API Proxy via the Apigee API Proxy Editor .
 
@@ -268,11 +268,16 @@ upload that jar file into the API Proxy via the Apigee API Proxy Editor .
 
 * Apigee expressions v1.0
 * Apigee message-flow v1.0
-* Bouncy Castle 1.64
+* Bouncy Castle 1.67
 
 These jars are specified in the pom.xml file.
 
-The first two JARs are builtin to Apigee. The BC jar is also available to Java callouts in your Apigee instance.
+The BouncyCastle jar is available as part of the Apigee runtime, although it is
+not a documented part of the Apigee platform and is therefore not guaranteed to
+remain available. In the highly unlikely future scenario in which Apigee removes
+the BC jar from the Apigee runtime, you could simply upload the BouncyCastle jar
+as a resource, either with the apiproxy or with the organization or environment,
+to resolve the dependency.
 
 
 ## Author
