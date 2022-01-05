@@ -90,7 +90,7 @@ configuration. Examples follow, but here's a quick summary:
     <Property name='decode-signature'>base16</Property>
   </Properties>
   <ClassName>com.google.apigee.callouts.EcdsaSigCallout</ClassName>
-  <ResourceURL>java://apigee-callout-ecdsa-sig-20211020.jar</ResourceURL>
+  <ResourceURL>java://apigee-callout-ecdsa-sig-20220104.jar</ResourceURL>
 </JavaCallout>
 ```
 
@@ -146,7 +146,7 @@ IEEE P1363-formatted signature (simply concatenating the (r,s) pair), you need t
     <Property name='decode-signature'>base16</Property>
   </Properties>
   <ClassName>com.google.apigee.callouts.EcdsaSigCallout</ClassName>
-  <ResourceURL>java://apigee-callout-ecdsa-sig-20211020.jar</ResourceURL>
+  <ResourceURL>java://apigee-callout-ecdsa-sig-20220104.jar</ResourceURL>
 </JavaCallout>
 ```
 
@@ -160,7 +160,7 @@ IEEE P1363-formatted signature (simply concatenating the (r,s) pair), you need t
     <Property name='encode-result'>base64</Property>
   </Properties>
   <ClassName>com.google.apigee.callouts.EcdsaSigCallout</ClassName>
-  <ResourceURL>java://apigee-callout-ecdsa-sig-20211020.jar</ResourceURL>
+  <ResourceURL>java://apigee-callout-ecdsa-sig-20220104.jar</ResourceURL>
 </JavaCallout>
 ```
 
@@ -191,7 +191,7 @@ Here's what will happen with this policy configuration:
     <Property name='encode-result'>base64</Property>
   </Properties>
   <ClassName>com.google.apigee.callouts.EcdsaSigCallout</ClassName>
-  <ResourceURL>java://apigee-callout-ecdsa-sig-20211020.jar</ResourceURL>
+  <ResourceURL>java://apigee-callout-ecdsa-sig-20220104.jar</ResourceURL>
 </JavaCallout>
 ```
 
@@ -259,7 +259,7 @@ To build: `mvn clean package`
 The Jar source code includes tests.
 
 If you edit policies offline, copy the jar file for the custom
-policy (found in callout/target/apigee-callout-ecdsa-sig-20211020.jar) to your
+policy (found in callout/target/apigee-callout-ecdsa-sig-20220104.jar) to your
 apiproxy/resources/java directory.  If you don't edit proxy bundles offline,
 upload that jar file into the API Proxy via the Apigee API Proxy Editor .
 

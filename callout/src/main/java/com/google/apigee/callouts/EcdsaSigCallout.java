@@ -3,7 +3,7 @@
 // This is the main callout class for the ECDSA signature custom policy for Apigee.
 // For full details see the Readme accompanying this source file.
 //
-// Copyright (c) 2019-2021 Google LLC.
+// Copyright (c) 2019-2022 Google LLC.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,8 +37,6 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Signature;
 import java.security.interfaces.ECPrivateKey;
@@ -54,7 +52,7 @@ import org.bouncycastle.asn1.ASN1EncodableVector;
 import org.bouncycastle.asn1.ASN1Integer;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.DERSequence;
-import org.bouncycastle.openssl.PEMWriter;
+import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 
 @IOIntensive
 public class EcdsaSigCallout implements Execution {
@@ -147,7 +145,7 @@ public class EcdsaSigCallout implements Execution {
 
   private byte[] decodeString(String s, EncodingType decodingKind) throws Exception {
     if (decodingKind == EncodingType.BASE16) {
-      return Base16.decode(s.replaceAll("-",""));
+      return Base16.decode(s.replaceAll("-", ""));
     }
     if (decodingKind == EncodingType.BASE64) {
       return Base64.getDecoder().decode(s);
@@ -194,7 +192,7 @@ public class EcdsaSigCallout implements Execution {
     BigInteger s = ((ASN1Integer) seq.getObjectAt(1)).getValue();
     int n = (r.bitLength() + 7) / 8;
     // round up to nearest even integer
-    n = (int) Math.round((n+1)/2) * 2;
+    n = (int) Math.round((n + 1) / 2) * 2;
     byte[] out = new byte[2 * n];
     toFixed(r, out, 0, n);
     toFixed(s, out, n, n);
@@ -233,7 +231,7 @@ public class EcdsaSigCallout implements Execution {
 
   private void emitKeyVariable(MessageContext msgCtxt, java.security.Key key, String label) {
     StringWriter sw = new StringWriter();
-    try (PEMWriter pw = new PEMWriter(sw)) {
+    try (JcaPEMWriter pw = new JcaPEMWriter(sw)) {
       pw.writeObject(key);
     } catch (IOException e) {
     }
@@ -253,9 +251,10 @@ public class EcdsaSigCallout implements Execution {
       return privateKey;
     }
 
-    return (ECPrivateKey) KeyUtil.decodePrivateKey(
-        _getRequiredString(msgCtxt, "private-key"),
-        _getOptionalString(msgCtxt, "private-key-password"));
+    return (ECPrivateKey)
+        KeyUtil.decodePrivateKey(
+            _getRequiredString(msgCtxt, "private-key"),
+            _getOptionalString(msgCtxt, "private-key-password"));
   }
 
   private String _getRequiredString(MessageContext msgCtxt, String name) throws Exception {
