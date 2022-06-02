@@ -123,8 +123,9 @@
 
 
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antrun-plugin</artifactId>
-        <version>3.0.0</version>
+        <version>3.1.0</version>
         <executions>
           <execution>
             <id>ant1</id>
@@ -153,7 +154,7 @@
                   <fileset dir="${project.build.directory}">
                     <include name="${project.build.finalName}.jar"/>
                     <!-- copy any required dependencies tht are not
-                         already included in the Edge runtime: -->
+                         already included in the Apigee runtime: -->
                     <include name="lib/*.jar"/>
                     <exclude name="lib/bcprov-jdk15on-*.*.jar"/>
                     <exclude name="lib/bcpkix-jdk15on-*.*.jar"/>
